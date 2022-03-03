@@ -1,11 +1,11 @@
 /*********************************************************************************
-*  WEB322 – Assignment 03
+*  WEB322 – Assignment 04
 *  I declare that this assignment is my own work in accordance with Seneca  Academic Policy.  No part *  of this assignment has been copied manually or electronically from any other source 
 *  (including 3rd party web sites) or distributed to other students.
 * 
-*  Name: Hyunjeong Choi Student ID: 143281202 Date: Feb 13th. 2022
+*  Name: Hyunjeong Choi Student ID: 143281202 Date: March 2nd. 2022
 *
-*  Online (Heroku) URL: https://desolate-spire-35018.herokuapp.com/
+*  Online (Heroku) URL: 
 *
 *  GitHub Repository URL: https://github.com/avelynhc/web322-app
 *
@@ -19,6 +19,29 @@ var path = require("path");
 const multer = require("multer");
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
+const exphbs = require('express-handlebars');
+const { isAbsolute } = require("path");
+
+app.engine('.hbs', exphbs.engine({ 
+    extname: '.hbs',
+    helpers: {
+        navLink: function(url, options){
+            return '<li' + 
+                ((url == app.locals.activeRoute) ? ' class="active" ' : '') + 
+                '><a href="' + url + '">' + options.fn(this) + '</a></li>';
+        },
+        equal: function(lvalue, rvalue, options) {
+            if (arguments.length < 3)
+                throw new Error("Handlebars Helper equal needs 2 parameters");
+            if (lvalue != rvalue) {
+                return options.inverse(this);
+            } else {
+                return options.fn(this);
+            }
+        }
+    }
+}));
+app.set('view engine', '.hbs');
 
 cloudinary.config({
     cloud_name: process.env.CLOUD_NAME,
@@ -33,12 +56,23 @@ const onHttpStart = () => console.log(`Express http server listening on port ${H
 app.use(express.static('public')); 
 const upload = multer(); 
 
+app.use(function(req,res,next){
+    let route = req.path.substring(1);
+    app.locals.activeRoute = (route == "/") ? "/" : "/" + route.replace(/\/(.*)/, "");
+    app.locals.viewingCategory = req.query.category;
+    next();
+});
+
 app.get("/", (req,res) => {
-    res.sendFile(path.join(__dirname, "/views/about.html"));
+    res.redirect('/about');
+});
+
+app.get("/about", (req, res) => {
+    res.render(path.join(__dirname + '/views/about.hbs'))
 });
 
 app.get("/posts/add", (req, res) => {
-    res.sendFile(path.join(__dirname, "/views/addPost.html"));
+    res.render(path.join(__dirname + '/views/addPost.hbs'))
 })
 
 app.post("/posts/add", upload.single("featureImage"), (req, res) => {
@@ -71,10 +105,6 @@ app.post("/posts/add", upload.single("featureImage"), (req, res) => {
     }).catch((error) => res.status(500).send(error));
 })
 
-app.get("/about", (req, res) => {
-    res.sendFile(path.join(__dirname, "/views/about.html"));
-});
-
 app.get("/blog", (req, res) => {
     blogService.getPublishedPosts().then((data) => {
         res.json(data);
@@ -84,29 +114,29 @@ app.get("/blog", (req, res) => {
 app.get("/posts", (req, res) => {
     if (req.query.category) {
         blogService.getPostsByCategory(req.query.category).then((data) => {
-            res.json(data);
-        }).catch((err) => res.json({"message": err}))
+            res.render('posts', {posts:data});
+        }).catch((err) => res.render('posts', {message: "no results"}));
     } else if (req.query.minDate) {
         blogService.getPostsByMinDate(req.query.minDate).then((data) => {
-            res.json(data);
-        }).catch((err) => res.json({"message": err}))
+            res.render('posts', {posts:data});
+        }).catch((err) => res.render('posts', {message: "no results"}));
     } else {
         blogService.getAllPosts().then((data) => {
-            res.json(data);
-        }).catch((err) => res.json({"message": err}))
+            res.render('posts', {posts:data});
+        }).catch((err) => res.render('posts', {message: "no results"}));
     }
 })
 
 app.get("/post/:value", (req, res) => {
     blogService.getPostByID(req.params.value).then((data) => {
-        res.json(data);
-    }).catch((err) => res.json({"message": err}))
+        res.render('posts', {posts:data});
+    }).catch((err) => res.render('posts', {message: "no results"}));
 })
 
 app.get("/categories", (req, res) => {
     blogService.getCategories().then((data) => {
-        res.json(data);
-    }).catch((err) => res.json({"message": err}))
+        res.render("categories", {categories: data});
+    }).catch((err) => res.render("categories", {message: "no results"}))
 })
 
 app.use((req, res) => {

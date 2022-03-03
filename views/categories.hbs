@@ -1,0 +1,31 @@
+<div class="row">
+    <div class="col-md-12">
+        <h2>Categories</h2>
+        <hr />
+        {{!-- <p>TODO: render a list of all category id's and categories here</p> --}}
+        {{!-- {{#each categories}}
+        <p>{{id}} {{category}}</p>
+        {{/each}} --}}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Category ID </th>
+                        <th>Category Name</th>
+                    </tr>
+                </thead>
+                {{#each categories}}
+                <tr>
+                    <th><a href="/posts?category={{this.id}}">{{id}}</a></th>
+                    <th><a href="/posts?category={{this.id}}">{{category}}</a></th>
+                </tr>
+                {{/each}}
+            </table>
+        </div>
+    </div>
+    {{#unless posts}}
+    <div class="col-md-12 text-center">
+        <strong>{{message}}</strong>
+    </div>
+    {{/unless}}
+</div>

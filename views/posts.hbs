@@ -1,0 +1,34 @@
+<div class="row">
+    <div class="col-md-12">
+        <h2>Posts</h2>
+        <hr />
+        <hr>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Post ID</th>
+                        <th>Title</th>
+                        <th>Post Date</th>
+                        <th>Category</th>
+                        <th>Published</th>
+                    </tr>
+                </thead>
+                {{#each posts}}
+                <tr>
+                    <th>{{id}}</th>
+                    <th>{{title}}</th>
+                    <th>{{postDate}}</th>
+                    <th><a href="/posts?category={{this.category}}">{{category}}</a></th>
+                    <th>{{published}}</th>
+                </tr>
+                {{/each}}
+            </table>
+        </div>
+    </div>
+    {{#unless posts}}
+    <div class="col-md-12 text-center">
+        <strong>{{message}}</strong>
+    </div>
+    {{/unless}}
+</div>
