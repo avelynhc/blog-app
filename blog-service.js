@@ -95,7 +95,7 @@ module.exports.getPostsByMinDate = (minDateStr) => {
     })
 }
 
-module.exports.getPostByID = (id) => {
+module.exports.getPostByID = (id) => { 
     return new Promise((resolve, reject) => {
         let post_by_id = [];
         for(let i=0;i<posts.length;i++) {
@@ -105,5 +105,18 @@ module.exports.getPostByID = (id) => {
         }
         if (!post_by_id.length) reject("no results returned");
         resolve(post_by_id);
+    })
+}
+
+module.exports.getPublishedPostsByCategory = (category) => {
+    return new Promise((resolve, reject) => {
+        let published_posts_by_category = [];
+        for(let i=0;i<posts.length;i++){
+            if(posts[i].published && posts[i].category==category){
+                published_posts_by_category.push(posts[i]);
+            }
+        }
+        if (!published_posts_by_category.length) reject("no results returned");
+        resolve(published_posts_by_category);
     })
 }

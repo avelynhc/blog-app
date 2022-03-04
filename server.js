@@ -20,7 +20,8 @@ const multer = require("multer");
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 const exphbs = require('express-handlebars');
-const { isAbsolute } = require("path");
+const stripJs = require('strip-js');
+const blogData = require('./blog-service');
 
 app.engine('.hbs', exphbs.engine({ 
     extname: '.hbs',
@@ -38,7 +39,10 @@ app.engine('.hbs', exphbs.engine({
             } else {
                 return options.fn(this);
             }
-        }
+        },
+        safeHTML: function(context){
+            return stripJs(context);
+        }        
     }
 }));
 app.set('view engine', '.hbs');
@@ -105,38 +109,89 @@ app.post("/posts/add", upload.single("featureImage"), (req, res) => {
     }).catch((error) => res.status(500).send(error));
 })
 
-app.get("/blog", (req, res) => {
-    blogService.getPublishedPosts().then((data) => {
-        res.json(data);
-    }).catch((err) => res.json({"message": err}))
+app.get("/blog", async (req, res) => {
+    let viewData = {};
+    try{
+        let posts = [];
+        if(req.query.category){
+            posts = await blogData.getPublishedPostsByCategory(req.query.category);
+        }else{
+            posts = await blogData.getPublishedPosts();
+        }
+        posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
+        let post = posts[0]; 
+        viewData.posts = posts;
+        viewData.post = post;
+    }catch(err){
+        viewData.message = 'no results';
+    }
+
+    try{
+        let categories = await blogData.getCategories();
+        viewData.categories = categories;
+    }catch(err){
+        viewData.categoriesMessage = 'no results';
+    }
+    res.render('blog', {data:viewData});
 })
+
+app.get('/blog/:id', async (req, res) => {
+    let viewData = {};
+    try{
+        let posts = [];
+        if(req.query.category){
+            posts = await blogData.getPublishedPostsByCategory(req.query.category);
+        }else{
+            posts = await blogData.getPublishedPosts();
+        }
+        posts.sort((a,b) => new Date(b.postDate) - new Date(a.postDate));
+        viewData.posts = posts;
+    }catch(err){
+        viewData.message = "no results";
+    }
+    try{
+        posts = await blogData.getPostByID(req.params.id);
+        viewData.post = posts[0];
+    }catch(err){
+        console.log(err)
+        viewData.message = "no results"; 
+    }
+
+    try{
+        let categories = await blogData.getCategories();
+        viewData.categories = categories;
+    }catch(err){
+        viewData.categoriesMessage = "no results"
+    }
+    res.render("blog", {data: viewData})
+});
 
 app.get("/posts", (req, res) => {
     if (req.query.category) {
         blogService.getPostsByCategory(req.query.category).then((data) => {
             res.render('posts', {posts:data});
-        }).catch((err) => res.render('posts', {message: "no results"}));
+        }).catch((err) => res.render('posts', {message: 'no results'}));
     } else if (req.query.minDate) {
         blogService.getPostsByMinDate(req.query.minDate).then((data) => {
             res.render('posts', {posts:data});
-        }).catch((err) => res.render('posts', {message: "no results"}));
+        }).catch((err) => res.render('posts', {message: 'no results'}));
     } else {
         blogService.getAllPosts().then((data) => {
             res.render('posts', {posts:data});
-        }).catch((err) => res.render('posts', {message: "no results"}));
+        }).catch((err) => res.render('posts', {message: 'no results'}));
     }
 })
 
 app.get("/post/:value", (req, res) => {
     blogService.getPostByID(req.params.value).then((data) => {
         res.render('posts', {posts:data});
-    }).catch((err) => res.render('posts', {message: "no results"}));
+    }).catch((err) => res.render('posts', {message: 'no results'}));
 })
 
 app.get("/categories", (req, res) => {
     blogService.getCategories().then((data) => {
         res.render("categories", {categories: data});
-    }).catch((err) => res.render("categories", {message: "no results"}))
+    }).catch((err) => res.render("categories", {message: 'no results'}))
 })
 
 app.use((req, res) => {
