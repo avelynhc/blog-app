@@ -64,6 +64,7 @@ module.exports.addPost = (postData) => {
         if (postData.published === null) postData.published = false;
         postData.id = posts.length + 1;
         postData.category = parseInt(postData.category);
+        postData.postDate = (new Date()).toISOString().split('T')[0];
         posts.push(postData);
         resolve();
     })

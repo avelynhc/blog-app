@@ -1,0 +1,19 @@
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono');
+.message {
+  color: #fff;
+  font-size: 50px;
+  letter-spacing: .2px;
+  margin: 0;
+}
+
+.pageNotFound {
+    width: 100%;
+    text-align: center;
+    background-color: #000; 
+    font-family: 'Roboto Mono', monospace; 
+    font-size: 16px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    position: absolute;   
+}

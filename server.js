@@ -68,7 +68,7 @@ app.use(function(req,res,next){
 });
 
 app.get("/", (req,res) => {
-    res.redirect('/about');
+    res.redirect('/blog');
 });
 
 app.get("/about", (req, res) => {
@@ -195,7 +195,7 @@ app.get("/categories", (req, res) => {
 })
 
 app.use((req, res) => {
-    res.status(404).send("Page Not Found");
+    res.render('404', {message: 'no results'});
 })
 
 blogService.initialize().then(() => {
