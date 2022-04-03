@@ -1,0 +1,28 @@
+<div class="container" style="padding-top:60px">
+    {{#if errorMessage}}
+        <div class="alert alert-danger"> <strong>Error:</strong> {{errorMessage}}</div> 
+    {{/if}}
+    <div class="row">
+        <h2>Log In</h2>
+        <hr>
+        <form action="/login" method="POST">
+            <fieldset>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <input class="form-control" id="userName" name="userName" type="text" placeholder="User Name" required value autocomplete="off">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <input class="form-control" id="password" name="password" type="password" placeholder="Password" required value autocomplete="off">
+                    </div>
+                </div>
+            </div>
+            <input type="submit" class="btn btn-success pull-right" value="Login">
+        </form>
+    </div>
+</div>
